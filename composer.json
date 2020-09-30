@@ -1,0 +1,83 @@
+{
+    "name": "macpaw/symfony-behat-context",
+    "type": "library",
+    "description": "Behat Context for quick application testing",
+    "keywords": [
+        "MacPaw",
+        "symfony",
+        "symfony5",
+        "behat",
+        "BDD",
+        "Context"
+    ],
+    "homepage": "https://github.com/Yozhef",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yozhef",
+            "email": "hisemjo@gmail.com",
+            "homepage": "https://macpaw.com/",
+            "role": "Software Engineer"
+        }
+    ],
+    "require": {
+        "php": "^7.4",
+        "doctrine/doctrine-fixtures-bundle": "^3.3",
+        "sensio/framework-extra-bundle": "5.6.*",
+        "symfony-bundles/redis-bundle": "^3.0",
+        "symfony/dependency-injection": "5.1.*",
+        "symfony/expression-language": "5.1.*",
+        "symfony/framework-bundle": "5.1.*",
+        "symfony/http-client": "5.1.*",
+        "symfony/messenger": "5.1.*",
+        "symfony/orm-pack": "1.2.*",
+        "behat/behat": "3.7.*",
+        "behat/mink": "^1.8",
+        "theofidry/alice-data-fixtures": "1.2.*",
+        "macpaw/extended_mock_http_client": "^1.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "0.12.*",
+        "phpunit/phpunit": "9.3.*",
+        "squizlabs/php_codesniffer": "3.5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "SymfonyBehatContext\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SymfonyBehatContext\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "check-style": "phpcs src tests",
+        "fix-style": "phpcbf src tests",
+        "phpstan": "php -d memory_limit=-1 ./vendor/bin/phpstan analyse -l 5 -c phpstan.neon.dist",
+        "dev-tests": [
+            "phpunit",
+            "@phpstan",
+            "@check-style"
+        ],
+        "ci-checks": [
+            "vendor/bin/phpcs --report=xml --report-file=./reports/phpcs.xml || true",
+            "vendor/bin/phpunit --log-junit ./reports/phpunit.xml --cache-result-file=./reports/ || true",
+            "php -d memory_limit=-1 ./vendor/bin/phpstan --error-format=checkstyle analyse -l 4 -c phpstan.neon.dist > ./reports/phpstan.xml || true"
+        ],
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.0",
+            "dev-develop": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

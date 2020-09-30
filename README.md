@@ -1,2 +1,7 @@
-# SymfonyBehatContext
-Symfony5BehatContext
+# TODO
+
+## Testing
+
+``` bash
+$ composer test
+```
