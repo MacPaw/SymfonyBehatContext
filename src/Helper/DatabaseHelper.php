@@ -18,7 +18,6 @@ class DatabaseHelper
     private PersisterLoader $fixturesLoader;
     private LoggerInterface $logger;
     private bool $cacheSqliteDb;
-    private string $dataFixturesPath;
     private ?string $databaseName = null;
     private static ?array $cachedMetadata = null;
 
@@ -26,14 +25,12 @@ class DatabaseHelper
         EntityManagerInterface $entityManager,
         PersisterLoader $fixturesLoader,
         LoggerInterface $logger,
-        bool $cacheSqliteDb,
-        string $dataFixturesPath
+        bool $cacheSqliteDb
     ) {
         $this->entityManager = $entityManager;
         $this->fixturesLoader = $fixturesLoader;
         $this->logger = $logger;
         $this->cacheSqliteDb = $cacheSqliteDb;
-        $this->dataFixturesPath = $dataFixturesPath;
     }
 
     public function loadFixtures(array $fixtures = []): void
@@ -112,7 +109,7 @@ class DatabaseHelper
 
             $fixturesFiles = [];
             foreach ($fixtures as $fixtureName) {
-                $fixturesFiles[] = sprintf('%s/%s', $this->dataFixturesPath, $fixtureName);
+                $fixturesFiles[] = $fixtureName;
             }
 
             $fixturesObjects = $this->fixturesLoader->load($fixturesFiles);
