@@ -167,9 +167,7 @@ class DatabaseHelper
 
     private function log(string $message, array $context = []): void
     {
-        if ($this->logger) {
-            $this->logger->info($message, $context);
-        }
+        $this->logger->info($message, $context);
     }
 
     private function saveBackup(array $fixtures): void
