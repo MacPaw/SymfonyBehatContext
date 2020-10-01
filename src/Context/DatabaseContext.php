@@ -75,8 +75,7 @@ class DatabaseContext implements Context
                 $this->entityManager,
                 $this->persisterLoader,
                 $this->logger,
-                true,
-                $this->dataFixturesPath
+                true
             );
         }
 
