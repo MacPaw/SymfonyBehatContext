@@ -17,15 +17,18 @@ class DatabaseContext implements Context
     private PersisterLoader $persisterLoader;
     private LoggerInterface $logger;
     private ?DatabaseHelper $databaseHelper = null;
+    private string $dataFixturesPath;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         PersisterLoader $persisterLoader,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $dataFixturesPath
     ) {
         $this->entityManager = $entityManager;
         $this->persisterLoader = $persisterLoader;
         $this->logger = $logger;
+        $this->dataFixturesPath = $dataFixturesPath;
     }
 
     /**
@@ -53,7 +56,7 @@ class DatabaseContext implements Context
         $fixtures = [];
 
         foreach ($aliases as $alias) {
-            $fixture = sprintf('tests/DataFixtures/ORM/%s.yml', $alias);
+            $fixture = sprintf('%s/%s.yml', $this->dataFixturesPath, $alias);
 
             if (!is_file($fixture)) {
                 throw new InvalidArgumentException(sprintf('The "%s" fixture not found.', $alias));
