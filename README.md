@@ -2,5 +2,5 @@
 
 ### Install
 ```shell script
-composer require macpaw/extended_mock_http_client
+composer require macpaw/symfony-behat-context
 ```
