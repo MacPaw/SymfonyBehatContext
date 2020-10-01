@@ -1,7 +1,6 @@
-# TODO
+# Symfony Behat Context
 
-## Testing
-
-``` bash
-$ composer test
+### Install
+```shell script
+composer require macpaw/extended_mock_http_client
 ```
