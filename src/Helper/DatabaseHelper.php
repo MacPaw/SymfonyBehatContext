@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace SymfonyBehatContext\Helper;
 
-use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
-use Doctrine\Common\DataFixtures\ProxyReferenceRepository;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SqliteDriver;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,50 +14,35 @@ use Psr\Log\LoggerInterface;
 
 class DatabaseHelper
 {
-    private EntityManagerInterface $em;
+    private EntityManagerInterface $entityManager;
+    private PersisterLoader $fixturesLoader;
     private LoggerInterface $logger;
     private bool $cacheSqliteDb;
-    private ?string $databaseName;
-    private $referenceRepository;
-    private PersisterLoader $fixturesLoader;
-    private static $cachedMetadata;
+    private string $dataFixturesPath;
+    private ?string $databaseName = null;
+    private static ?array $cachedMetadata = null;
 
     public function __construct(
-        EntityManagerInterface $em,
+        EntityManagerInterface $entityManager,
         PersisterLoader $fixturesLoader,
         LoggerInterface $logger,
-        bool $cacheSqliteDb
+        bool $cacheSqliteDb,
+        string $dataFixturesPath
     ) {
-        $this->em = $em;
+        $this->entityManager = $entityManager;
         $this->fixturesLoader = $fixturesLoader;
         $this->logger = $logger;
         $this->cacheSqliteDb = $cacheSqliteDb;
+        $this->dataFixturesPath = $dataFixturesPath;
     }
 
-    /**
-     * Set the database to the provided fixtures.
-     *
-     * Drops the current database and then loads the specified fixtures.
-     *
-     * When using SQLite database this method will automatically make a copy of the loaded schema and fixtures
-     * which will be restored automatically in case the same fixture classes are to be loaded again.
-     *
-     * @param array $fixtures
-     *
-     * @throws InvalidArgumentException
-     */
     public function loadFixtures(array $fixtures = []): void
     {
-        if ($this->referenceRepository === null) {
-            $this->referenceRepository = new ProxyReferenceRepository($this->em);
-        }
-
-        if ($cacheDriver = $this->em->getMetadataFactory()->getCacheDriver()) {
+        if ($cacheDriver = $this->entityManager->getMetadataFactory()->getCacheDriver()) {
             $cacheDriver->deleteAll();
         }
 
-        $connection = $this->em->getConnection();
-        $executor = null;
+        $connection = $this->entityManager->getConnection();
         $loadedFixtures = [];
 
         if ($connection->getDriver() instanceof SqliteDriver) {
@@ -83,7 +65,7 @@ class DatabaseHelper
                     $backup = $this->getBackupFilename($loadedFixtures);
 
                     if (file_exists($backup)) {
-                        $this->em->clear();
+                        $this->entityManager->clear();
                         $connection->close();
 
                         $this->loadDataBackup($backup);
@@ -94,14 +76,11 @@ class DatabaseHelper
                             return;
                         }
 
-                        if (0 > count($loadedFixtures)) {
+                        if (count($loadedFixtures) > 0) {
                             $this->log('Found incremental database backup', ['fixtures' => $loadedFixtures]);
                         } else {
                             $this->log('Found database schema backup');
                         }
-
-                        $executor = new ORMExecutor($this->em);
-                        $executor->setReferenceRepository($this->referenceRepository);
 
                         $schemaCreated = true;
                         array_splice($fixtures, 0, count($loadedFixtures));
@@ -121,9 +100,6 @@ class DatabaseHelper
                 $this->log('Creating database schema');
 
                 $this->createDatabaseSchema();
-
-                $executor = new ORMExecutor($this->em);
-                $executor->setReferenceRepository($this->referenceRepository);
             }
 
             if ($this->cacheSqliteDb) {
@@ -131,20 +107,12 @@ class DatabaseHelper
             }
         }
 
-        if ($executor === null) {
-            $purger = new ORMPurger();
-            $executor = new ORMExecutor($this->em, $purger);
-
-            $executor->setReferenceRepository($this->referenceRepository);
-            $executor->purge();
-        }
-
-        if ($fixtures !== []) {
+        if (!empty($fixtures)) {
             $this->log('Loading database fixtures', ['fixtures' => $fixtures]);
 
             $fixturesFiles = [];
             foreach ($fixtures as $fixtureName) {
-                $fixturesFiles[] = __DIR__ . '/../../' . $fixtureName;
+                $fixturesFiles[] = sprintf('%s/%s', $this->dataFixturesPath, $fixtureName);
             }
 
             $fixturesObjects = $this->fixturesLoader->load($fixturesFiles);
@@ -162,7 +130,7 @@ class DatabaseHelper
             chmod($this->databaseName, 0666);
         }
 
-        $this->em->clear();
+        $this->entityManager->clear();
     }
 
     private function log(string $message, array $context = []): void
@@ -202,15 +170,15 @@ class DatabaseHelper
 
     private function createDatabaseSchema(): void
     {
-        $schemaTool = new SchemaTool($this->em);
+        $schemaTool = new SchemaTool($this->entityManager);
         $schemaTool->dropDatabase();
 
         if (self::$cachedMetadata === null) {
-            self::$cachedMetadata = $this->em->getMetadataFactory()->getAllMetadata();
+            self::$cachedMetadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
         }
 
         if (self::$cachedMetadata !== []) {
-            $conn = $this->em->getConnection();
+            $conn = $this->entityManager->getConnection();
 
             $schema = $schemaTool->getSchemaFromMetadata(self::$cachedMetadata);
 
