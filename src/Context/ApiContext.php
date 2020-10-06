@@ -9,14 +9,13 @@ use SymfonyBehatContext\Context\Traits\ResponseTrait;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Exception;
-use Symfony\Component\Cache\ResettableInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-class ApiContext implements Context, ResettableInterface
+class ApiContext implements Context
 {
     use ArraySimilarTrait;
     use ResponseTrait;
@@ -45,7 +44,8 @@ class ApiContext implements Context, ResettableInterface
      */
     public function beforeScenario(): void
     {
-        $this->reset();
+        $this->token = null;
+        $this->headers = [];
     }
 
     /**
@@ -227,12 +227,5 @@ class ApiContext implements Context, ResettableInterface
         }
 
         return $routeParams;
-    }
-
-    public function reset(): void
-    {
-        $this->response = null;
-        $this->token = null;
-        $this->headers = [];
     }
 }
