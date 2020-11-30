@@ -31,8 +31,8 @@
         "symfony/http-client": "^4.4 || ^5.0",
         "symfony/messenger": "^4.4 || ^5.0",
         "symfony/orm-pack": "1.2.* || ^2.0",
-        "behat/behat": "3.7.*",
-        "behat/mink": "^1.8",
+        "behat/behat": "^3.0",
+        "behat/mink": "^1.0",
         "theofidry/alice-data-fixtures": "1.2.*",
         "macpaw/extended_mock_http_client": "^1.0"
     },
