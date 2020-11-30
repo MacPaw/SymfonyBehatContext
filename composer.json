@@ -25,12 +25,12 @@
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "sensio/framework-extra-bundle": "5.6.*",
         "symfony-bundles/redis-bundle": "^3.0",
-        "symfony/dependency-injection": "5.1.*",
-        "symfony/expression-language": "5.1.*",
-        "symfony/framework-bundle": "5.1.*",
-        "symfony/http-client": "5.1.*",
-        "symfony/messenger": "5.1.*",
-        "symfony/orm-pack": "1.2.*|^2.0",
+        "symfony/dependency-injection": "^4.4 || ^5.0",
+        "symfony/expression-language": "^4.4 || ^5.0",
+        "symfony/framework-bundle": "^4.4 || ^5.0",
+        "symfony/http-client": "^4.4 || ^5.0",
+        "symfony/messenger": "^4.4 || ^5.0",
+        "symfony/orm-pack": "1.2.* || ^2.0",
         "behat/behat": "3.7.*",
         "behat/mink": "^1.8",
         "theofidry/alice-data-fixtures": "1.2.*",
@@ -62,6 +62,5 @@
             "@code-style",
             "@phpunit"
         ]
-    },
-    "minimum-stability": "dev"
+    }
 }
