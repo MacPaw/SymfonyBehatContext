@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SqliteDriver;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use Fidry\AliceDataFixtures\Bridge\Doctrine\Persister\ObjectManagerPersister;
 use Fidry\AliceDataFixtures\Loader\PersisterLoader;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -28,7 +29,7 @@ class DatabaseHelper
         bool $cacheSqliteDb
     ) {
         $this->entityManager = $entityManager;
-        $this->fixturesLoader = $fixturesLoader;
+        $this->fixturesLoader = $fixturesLoader->withPersister(new ObjectManagerPersister($entityManager));
         $this->logger = $logger;
         $this->cacheSqliteDb = $cacheSqliteDb;
     }
@@ -150,7 +151,10 @@ class DatabaseHelper
 
     private function getBackupFilename(array $fixtures): string
     {
-        return preg_replace('|[^\\\\/]+$|', 'backup_' . md5(serialize($fixtures)) . '.db', $this->databaseName);
+        preg_match('|([^\\\\/]+)\.db$|', $this->databaseName, $matches);
+        $dbShortName = $matches[1];
+
+        return preg_replace('|[^\\\\/]+$|', $dbShortName . '_' . md5(serialize($fixtures)) . '.db', $this->databaseName);
     }
 
     private function saveDataBackup(string $backupName): void
@@ -170,14 +174,13 @@ class DatabaseHelper
         $schemaTool = new SchemaTool($this->entityManager);
         $schemaTool->dropDatabase();
 
-        if (self::$cachedMetadata === null) {
-            self::$cachedMetadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        if (!isset(self::$cachedMetadata[$this->databaseName]) || self::$cachedMetadata[$this->databaseName] === null) {
+            self::$cachedMetadata[$this->databaseName] = $this->entityManager->getMetadataFactory()->getAllMetadata();
         }
 
-        if (self::$cachedMetadata !== []) {
+        if (self::$cachedMetadata[$this->databaseName] !== []) {
             $conn = $this->entityManager->getConnection();
-
-            $schema = $schemaTool->getSchemaFromMetadata(self::$cachedMetadata);
+            $schema = $schemaTool->getSchemaFromMetadata(self::$cachedMetadata[$this->databaseName]);
 
             if ($conn->getDriver() instanceof SqliteDriver) {
                 $this->adaptDatabaseSchemaToSqlite($schema);
