@@ -13,11 +13,11 @@ use Psr\Log\LoggerInterface;
 
 class DatabaseContext implements Context
 {
-    private EntityManagerInterface $entityManager;
-    private PersisterLoader $persisterLoader;
-    private LoggerInterface $logger;
-    private ?DatabaseHelper $databaseHelper = null;
-    private string $dataFixturesPath;
+    protected EntityManagerInterface $entityManager;
+    protected PersisterLoader $persisterLoader;
+    protected LoggerInterface $logger;
+    protected ?DatabaseHelper $databaseHelper = null;
+    protected string $dataFixturesPath;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -68,7 +68,7 @@ class DatabaseContext implements Context
         $this->getDatabaseHelper()->loadFixtures($fixtures);
     }
 
-    private function getDatabaseHelper(): DatabaseHelper
+    protected function getDatabaseHelper(): DatabaseHelper
     {
         if ($this->databaseHelper === null) {
             $this->databaseHelper = new DatabaseHelper(
