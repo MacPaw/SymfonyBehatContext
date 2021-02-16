@@ -9,7 +9,7 @@ use InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
 use SymfonyBundles\RedisBundle\Redis\ClientInterface;
 
-class RedisFixturesContext implements Context
+class RedisFixtureContext implements Context
 {
     private ClientInterface $redis;
 
