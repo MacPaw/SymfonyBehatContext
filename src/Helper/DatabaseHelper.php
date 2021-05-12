@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SymfonyBehatContext\Helper;
 
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SqliteDriver;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -43,7 +44,7 @@ class DatabaseHelper
         $connection = $this->entityManager->getConnection();
         $loadedFixtures = [];
 
-        if ($connection->getDriver() instanceof SqliteDriver) {
+        if ($connection->getDatabasePlatform() instanceof SqlitePlatform) {
             $params = $params['master'] ?? $connection->getParams();
 
             $this->databaseName = $params['path'] ?? ($params['dbname'] ?? false);
@@ -182,7 +183,7 @@ class DatabaseHelper
             $conn = $this->entityManager->getConnection();
             $schema = $schemaTool->getSchemaFromMetadata(self::$cachedMetadata[$this->databaseName]);
 
-            if ($conn->getDriver() instanceof SqliteDriver) {
+            if ($conn->getDatabasePlatform() instanceof SqlitePlatform) {
                 $this->adaptDatabaseSchemaToSqlite($schema);
             }
 
