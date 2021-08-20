@@ -26,6 +26,7 @@ class ApiContext implements Context
 
     private ?string $token = null;
     private array $headers = [];
+    private array $serverParams = [];
 
     public function __construct(
         RouterInterface $router,
@@ -46,6 +47,7 @@ class ApiContext implements Context
     {
         $this->token = null;
         $this->headers = [];
+        $this->serverParams = [];
     }
 
     /**
@@ -70,13 +72,15 @@ class ApiContext implements Context
         string $queryString = '',
         array $postFields = [],
         array $routeParams = [],
-        array $cookies = []
+        array $cookies = [],
+        array $serverParams = []
     ): void {
         $url = $this->router->generate($route, $routeParams);
         $url = preg_replace('|^/app[^\.]*\.php|', '', $url);
 
         $request = Request::create($url . '?' . $queryString, $method, $postFields ?? [], $cookies);
         $request->headers->add(array_merge($this->headers, $headers));
+        $request->server->add(array_merge($this->serverParams, $serverParams));
 
         $response = $this->kernel->handle($request);
 
@@ -96,6 +100,14 @@ class ApiContext implements Context
     public function theRequestHeaderContains($header, $value): void
     {
         $this->headers[$header] = $value;
+    }
+
+    /**
+     * @Given the request ip is :ip
+     */
+    public function theRequestIpIs(string $ip): void
+    {
+        $this->serverParams['REMOTE_ADDR'] = $ip;
     }
 
     /**
