@@ -18,27 +18,20 @@ class DatabaseContext implements Context
     protected LoggerInterface $logger;
     protected ?DatabaseHelper $databaseHelper = null;
     protected string $dataFixturesPath;
+    protected string $cacheDir;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         PersisterLoader $persisterLoader,
         LoggerInterface $logger,
-        string $dataFixturesPath
+        string $dataFixturesPath,
+        string $cacheDir
     ) {
         $this->entityManager = $entityManager;
         $this->persisterLoader = $persisterLoader;
         $this->logger = $logger;
         $this->dataFixturesPath = $dataFixturesPath;
-    }
-
-    /**
-     * Before Scenario.
-     *
-     * @BeforeScenario
-     */
-    public function beforeScenario(): void
-    {
-        $this->getDatabaseHelper()->loadFixtures();
+        $this->cacheDir = $cacheDir;
     }
 
     /**
@@ -75,7 +68,7 @@ class DatabaseContext implements Context
                 $this->entityManager,
                 $this->persisterLoader,
                 $this->logger,
-                true
+                $this->cacheDir
             );
         }
 
