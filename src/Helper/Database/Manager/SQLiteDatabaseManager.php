@@ -49,6 +49,7 @@ class SQLiteDatabaseManager extends DatabaseManager
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
 
         $schemaTool->dropDatabase();
+        #todo Think about how to get rid of this try
         try {
             $this->connection->executeStatement("DROP table v_product_plan");
         }

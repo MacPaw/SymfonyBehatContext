@@ -33,6 +33,8 @@ abstract class DatabaseManager
 
     abstract public function loadBackup(array $fixtures): void;
 
+    abstract protected function getBackupFilename(array $fixtures): string;
+    
     public function backupExists(array $fixtures): bool
     {
         $backupFilename = $this->getBackupFilename($fixtures);
@@ -42,8 +44,6 @@ abstract class DatabaseManager
 
         return false;
     }
-
-    abstract protected function getBackupFilename(array $fixtures): string;
 
     protected function getDatabaseName(): string
     {

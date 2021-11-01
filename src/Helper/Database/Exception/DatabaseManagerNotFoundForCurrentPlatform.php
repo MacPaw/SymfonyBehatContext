@@ -12,5 +12,4 @@ class DatabaseManagerNotFoundForCurrentPlatform extends Exception
             'databasePlatform' => get_class($databasePlatform),
         ]);
     }
-
 }

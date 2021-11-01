@@ -18,16 +18,15 @@ class PgSqlDatabaseManager extends DatabaseManager
         }
 
         $databaseName = $this->getDatabaseName();
-        $dbPassword = "PGPASSWORD='{$this->connection->getParams()['password']}'";
+        $password = "PGPASSWORD='{$this->connection->getParams()['password']}'";
         $user = $this->connection->getParams()['user'];
         $host = $this->connection->getParams()['host'];
         $port = $this->connection->getParams()['port'];
         # Needed for optimization
         $additionalParams = "--exclude-table=migration_versions --no-comments --disable-triggers --data-only";
-        $appendStdoutFile = "2> {$this->cacheDir}/pg_dump_log.txt";
+        $appendStderrFile = "2> {$this->cacheDir}/pg_dump_log.txt";
 
-        $dumpCommand = "{$dbPassword} pg_dump -U{$user} -h{$host} -p{$port} {$additionalParams} {$databaseName} > {$backupFilename} {$appendStdoutFile}";
-        exec($dumpCommand);
+        exec("{$password} pg_dump -U{$user} -h{$host} -p{$port} {$additionalParams} {$databaseName} > {$backupFilename} {$appendStderrFile}");
 
         $this->log('Database backup saved', ['fixtures' => $fixtures]);
     }
@@ -42,13 +41,12 @@ class PgSqlDatabaseManager extends DatabaseManager
 
         $backupFilename = $this->getBackupFilename($fixtures);
         $databaseName = $this->getDatabaseName();
-        $dbPassword = "PGPASSWORD='{$this->connection->getParams()['password']}'";
+        $password = "PGPASSWORD='{$this->connection->getParams()['password']}'";
         $user = $this->connection->getParams()['user'];
         $host = $this->connection->getParams()['host'];
         $port = $this->connection->getParams()['port'];
 
-        $upCommand = "{$dbPassword} psql -U{$user} -h{$host} -p{$port} {$databaseName} < {$backupFilename}";
-        exec($upCommand);
+        exec("{$password} psql -U{$user} -h{$host} -p{$port} {$databaseName} < {$backupFilename}");
 
         $this->log('Database backup loaded');
     }
