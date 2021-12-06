@@ -66,8 +66,11 @@ jobs:
             - name: Update Symfony version
               if: matrix.symfony-versions != ''
               run: |
+                  composer require symfony/dependency-injection:${{ matrix.symfony-versions }} --no-update --no-scripts
+                  composer require symfony/expression-language:${{ matrix.symfony-versions }} --no-update --no-scripts
+                  composer require symfony/framework-bundle:${{ matrix.symfony-versions }} --no-update --no-scripts
+                  composer require symfony/http-client:${{ matrix.symfony-versions }} --no-update --no-scripts
                   composer require symfony/messenger:${{ matrix.symfony-versions }} --no-update --no-scripts
-                  composer require symfony/serializer:${{ matrix.symfony-versions }} --no-update --no-scripts
 
             - name: Install dependencies
               run: composer install
